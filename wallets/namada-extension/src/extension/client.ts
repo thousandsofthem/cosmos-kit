@@ -13,6 +13,10 @@ import { DirectSignDoc, SignOptions, WalletClient } from '@cosmos-kit/core';
 import { Namada } from './types';
 import Long from 'long';
 
+interface NamadaWindow {
+  namada?: Namada;
+}
+
 export class NamadaClient implements WalletClient {
   readonly client: Namada;
   private _defaultSignOptions: SignOptions = {
@@ -46,26 +50,38 @@ export class NamadaClient implements WalletClient {
   }
 
   async addChain(chainInfo: ChainRecord) {
-    const suggestChain = chainRegistryChainToKeplr(
-      chainInfo.chain,
-      chainInfo.assetList ? [chainInfo.assetList] : []
-    );
+    console.log("client.js - addChain3", chainInfo)
+    const namada = (window as NamadaWindow).namada;
 
-    if (chainInfo.preferredEndpoints?.rest?.[0]) {
-      (suggestChain.rest as string | ExtendedHttpEndpoint) =
-        chainInfo.preferredEndpoints?.rest?.[0];
-    }
+    namada.connect();
+    // const suggestChain = chainRegistryChainToKeplr(
+    //   chainInfo.chain,
+    //   chainInfo.assetList ? [chainInfo.assetList] : []
+    // );
 
-    if (chainInfo.preferredEndpoints?.rpc?.[0]) {
-      (suggestChain.rpc as string | ExtendedHttpEndpoint) =
-        chainInfo.preferredEndpoints?.rpc?.[0];
-    }
+    // if (chainInfo.preferredEndpoints?.rest?.[0]) {
+    //   (suggestChain.rest as string | ExtendedHttpEndpoint) =
+    //     chainInfo.preferredEndpoints?.rest?.[0];
+    // }
 
-    await this.client.experimentalSuggestChain(suggestChain);
+    // if (chainInfo.preferredEndpoints?.rpc?.[0]) {
+    //   (suggestChain.rpc as string | ExtendedHttpEndpoint) =
+    //     chainInfo.preferredEndpoints?.rpc?.[0];
+    // }
+
+    // await this.client.experimentalSuggestChain(suggestChain);
   }
 
   async disconnect() {
-    await this.client.disconnect();
+    const namada = (window as NamadaWindow).namada;
+    console.log("client.js - disconnect", this.client);
+
+    await namada.disconnect();
+  }
+
+  async experimentalSuggestChain(foo: any) {
+    console.log("client.js - experimentalSuggestChain", foo);
+
   }
 
   async getSimpleAccount(chainId: string) {

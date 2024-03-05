@@ -27,6 +27,7 @@ export interface Namada {
   defaultOptions: {
     sign?: NamadaSignOptions;
   };
+  connect(): Promise<void>;
   disconnect(): Promise<void>;
   enable(chainIds: string | string[]): Promise<void>;
   suggestToken(chainId: string, contractAddress: string): Promise<void>;

@@ -24,8 +24,10 @@ import type { MainWalletBase } from './main-wallet';
 import { WalletBase } from './wallet';
 import { ConnectError } from '../utils';
 
+//
+
 export class ChainWalletBase extends WalletBase {
-  mainWallet: MainWalletBase;
+  mainWallet: MainWalletBase | undefined;
   chainRecord: ChainRecord;
   protected _rpcEndpoint?: string | ExtendedHttpEndpoint;
   protected _restEndpoint?: string | ExtendedHttpEndpoint;
