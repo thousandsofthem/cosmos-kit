@@ -33,6 +33,7 @@ export const getNamadaFromExtension: () => Promise<
         event.target &&
         (event.target as Document).readyState === 'complete'
       ) {
+        const namada = (window as NamadaWindow).namada;
         if (namada) {
           resolve(namada);
         } else {

@@ -34,7 +34,12 @@ export class NamadaClient implements WalletClient {
   }
 
   constructor(client: Namada) {
+    console.log("client.js - client constructor v3", client);
+
     this.client = client;
+    // DEBUG!
+    (window as any).namada_client = client;
+    (window as any).namada_this = this;
   }
 
   async enable(chainIds: string | string[]) {
@@ -50,19 +55,19 @@ export class NamadaClient implements WalletClient {
   }
 
   async addChain(chainInfo: ChainRecord) {
-    console.log("client.js - addChain3", chainInfo)
-    const namada = (window as NamadaWindow).namada;
+    console.log("client.js - addChain6", chainInfo, this.client)
 
-    namada.connect();
-    // const suggestChain = chainRegistryChainToKeplr(
-    //   chainInfo.chain,
-    //   chainInfo.assetList ? [chainInfo.assetList] : []
-    // );
+    await this.client.connect();
+    // return this.client.getChain("");
+    const suggestChain = chainRegistryChainToKeplr(
+      chainInfo.chain,
+      chainInfo.assetList ? [chainInfo.assetList] : []
+    );
 
-    // if (chainInfo.preferredEndpoints?.rest?.[0]) {
-    //   (suggestChain.rest as string | ExtendedHttpEndpoint) =
-    //     chainInfo.preferredEndpoints?.rest?.[0];
-    // }
+    if (chainInfo.preferredEndpoints?.rest?.[0]) {
+      (suggestChain.rest as string | ExtendedHttpEndpoint) =
+        chainInfo.preferredEndpoints?.rest?.[0];
+    }
 
     // if (chainInfo.preferredEndpoints?.rpc?.[0]) {
     //   (suggestChain.rpc as string | ExtendedHttpEndpoint) =
@@ -73,10 +78,9 @@ export class NamadaClient implements WalletClient {
   }
 
   async disconnect() {
-    const namada = (window as NamadaWindow).namada;
-    console.log("client.js - disconnect", this.client);
+    console.log("client.js - disconnect v3", this.client);
 
-    await namada.disconnect();
+    // await this.client.disconnect();
   }
 
   async experimentalSuggestChain(foo: any) {
@@ -95,13 +99,20 @@ export class NamadaClient implements WalletClient {
   }
 
   async getAccount(chainId: string) {
-    const key = await this.client.getKey(chainId);
+    const c = await this.client.getChain(chainId);
+    const algo: Algo = "secp256k1";
+    // const pubkey: Uint8Array = [];
+    var enc = new TextEncoder();
+    const pubkey =  enc.encode(c.currency.address) //new Uint8Array([]);
     return {
-      username: key.name,
-      address: key.bech32Address,
-      algo: key.algo as Algo,
-      pubkey: key.pubKey,
-      isNanoLedger: key.isNanoLedger,
+      username: c.alias,
+      address: c.currency.address,
+      // algo: key.algo as Algo,
+      algo: algo,
+      // pubkey: c.currency.address,
+      pubkey: pubkey,
+      isNanoLedger: false,
+      isSmartContract: false
     };
   }
 
@@ -118,11 +129,11 @@ export class NamadaClient implements WalletClient {
   }
 
   getOfflineSignerAmino(chainId: string) {
-    return this.client.getOfflineSignerOnlyAmino(chainId);
+    return this.client.getSigner();
   }
 
   getOfflineSignerDirect(chainId: string) {
-    return this.client.getOfflineSigner(chainId) as OfflineDirectSigner;
+    return this.client.getSigner() as OfflineDirectSigner;
   }
 
   async signAmino(

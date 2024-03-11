@@ -9,14 +9,59 @@ import { DirectSignResponse } from '@cosmjs/proto-signing';
 import { BroadcastMode } from '@cosmos-kit/core';
 import type { ChainInfo } from '@keplr-wallet/types';
 
-export interface Key {
-  readonly name: string;
-  readonly algo: string;
-  readonly pubKey: Uint8Array;
-  readonly address: Uint8Array;
-  readonly bech32Address: string;
-  readonly isNanoLedger: boolean;
+// {
+//   "alias": "Namada Shielded Expedition",
+//   "bech32Prefix": "tnam",
+//   "bip44": {
+//       "coinType": 877
+//   },
+//   "bridgeType": [
+//       "ibc",
+//       "ethereum-bridge"
+//   ],
+//   "chainId": "shielded-expedition.88f17d1d14",
+//   "currency": {
+//       "address": "tnam1qxvg64psvhwumv3mwrrjfcz0h3t3274hwggyzcee",
+//       "gasPriceStep": {
+//           "average": 0.025,
+//           "high": 0.03,
+//           "low": 0.01
+//       },
+//       "symbol": "NAM",
+//       "token": "Nam"
+//   },
+//   "extension": {
+//       "alias": "Namada",
+//       "id": "namada",
+//       "url": "https://namada.me"
+//   },
+//   "ibc": {
+//       "portId": "transfer"
+//   },
+//   "id": "namada",
+//   "rpc": "https://proxy.heliax.click/shielded-expedition.88f17d1d14/"
+// }
+export interface NamadaChainInfo {
+  readonly id: string;
+  readonly alias: string;
+  readonly bech32Prefix: string;
+  readonly chainId: string;
+  readonly currency: ChainCurrency;
+  readonly extension: ChainExt;
 }
+
+export interface ChainCurrency {
+  readonly address: string;
+  readonly symbol: string;
+  readonly token: string;
+}
+export interface ChainExt {
+  readonly alias: string;
+  readonly id: string;
+  readonly url: string;
+}
+
+
 export interface NamadaSignOptions {
   readonly preferNoSetFee?: boolean;
   readonly preferNoSetMemo?: boolean;
@@ -33,7 +78,8 @@ export interface Namada {
   suggestToken(chainId: string, contractAddress: string): Promise<void>;
   suggestCW20Token(chainId: string, contractAddress: string): Promise<void>;
   mode: 'extension';
-  getKey(chainId: string): Promise<Key>;
+  getChain(chainId: string): Promise<NamadaChainInfo>;
+  getSigner(): OfflineAminoSigner & OfflineDirectSigner;
   getOfflineSigner(chainId: string): OfflineAminoSigner & OfflineDirectSigner;
   getOfflineSignerOnlyAmino(chainId: string): OfflineAminoSigner;
   getOfflineSignerAuto(chainId: string): Promise<OfflineSigner>;
